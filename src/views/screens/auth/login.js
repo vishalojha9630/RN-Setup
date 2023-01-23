@@ -1,49 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text } from 'react-native';
-
-import { useDispatch } from 'react-redux';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import React from 'react';
+import { SafeAreaView, View, Text } from 'react-native';
 
 import { strings } from 'utils';
-import { setAuth } from 'redux/slices/session';
-import { sessionService } from 'services';
 import { InputField, Button, Loading } from 'views/components';
 
-const Login = ({ moveNext }) => {
-  const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
-  const formik = useFormik({
-    initialValues: {
-      email: 'neha.tiwari@piecodes.in',
-    },
-    validationSchema: Yup.object({
-      email: Yup.string().required('Email is required').email('please enter valid email'),
-    }),
-    onSubmit: (values) => {
-      setLoading(true);
-      dispatch(setAuth(values));
-      sessionService.login(values).then((data) => {
-        if (data.error === false) {
-          setLoading(false);
-          moveNext(1);
-        }
-      });
-    },
-  });
-
+const Login = ({ loading, formik, styles }) => {
   return (
-    <View>
+    <SafeAreaView style={styles.pageMainContainer}>
       {loading ? (
         <Loading loading={loading} />
       ) : (
         <>
-          <Text style={{ fontSize: 26, color: '#1f1f1f', marginVertical: 20 }}>
-            {strings.welcome}
-          </Text>
-          <View style={{ marginVertical: 30 }}>
+          <Text style={styles.headerText}>{strings.welcome}</Text>
+          <View style={styles.inputWrapper}>
             <InputField
-              label={'Email'}
+              label={'Email address'}
               name="email"
               required={true}
               keyboardType="email-address"
@@ -53,7 +24,7 @@ const Login = ({ moveNext }) => {
             />
           </View>
 
-          <View style={{ marginVertical: 30 }}>
+          <View style={styles.btnWrap}>
             <Button
               name={strings.next}
               onPress={formik.handleSubmit}
@@ -62,7 +33,7 @@ const Login = ({ moveNext }) => {
           </View>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 

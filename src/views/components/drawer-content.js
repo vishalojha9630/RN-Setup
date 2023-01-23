@@ -1,22 +1,19 @@
-import React from 'react'
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { setDestroyAuth } from 'redux/slices/session';
 
-
 const DrawerContent = ({ props, appIcons }) => {
-  console.log('props', props)
-  const dispatch = useDispatch()
+  console.log('props', props);
+  const dispatch = useDispatch();
 
   function navigateTo(toScreen) {
     props.navigation.navigate(toScreen);
-    console.log('toScreen', toScreen)
   }
 
   const logOut = () => {
-    useDispatch(setDestroyAuth());
+    dispatch(setDestroyAuth());
   };
-
 
   const drawerItemList = [
     {
@@ -60,30 +57,35 @@ const DrawerContent = ({ props, appIcons }) => {
       functionCall: logOut,
       screenName: '',
       Icon: <appIcons.signOut width={25} height={25} />,
-      signOutColor: true
+      signOutColor: true,
     },
   ];
 
   const renderItem = ({ item, index }) => {
     return (
-      <View index={index} style={{ flexDirection: 'row', alignItems: 'center', }}>
+      <View index={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Text>{item.Icon}</Text>
-        <TouchableOpacity activeOpacity={0.5} onPress={() => (item.functionCall(item.screenName))} style={{ marginVertical: 10, marginStart: 12, }}>
-          <Text style={{ fontSize: 20, color: item.signOutColor ? '#ff0000' : '#000' }}>{item.title}</Text>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => item.functionCall(item.screenName)}
+          style={{ marginVertical: 10, marginStart: 12 }}
+        >
+          <Text style={{ fontSize: 20, color: item.signOutColor ? '#ff0000' : '#000' }}>
+            {item.title}
+          </Text>
         </TouchableOpacity>
       </View>
     );
   };
-
 
   return (
     <View style={{ paddingHorizontal: 15, marginVertical: 30 }}>
       <FlatList
         data={drawerItemList}
         renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
-  )
-}
+  );
+};
 export default DrawerContent;

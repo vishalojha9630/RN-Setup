@@ -1,39 +1,46 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView, View, Text } from 'react-native';
 
-import { nanoid } from 'nanoid';
-import { useSelector } from 'react-redux';
+// import { nanoid } from 'nanoid';
+import DeviceInfo from 'react-native-device-info';
+import { useDispatch, useSelector } from 'react-redux';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 
 import { strings } from 'utils';
 import { sessionService } from 'services';
+import { setAuth } from 'redux/slices/session';
 import { Button, Loading } from 'views/components';
 
-const OtpVerification = ({ navigateTo }) => {
+const OtpVerification = ({ navigateTo, handleSubmitValue, styles }) => {
+  const dispatch = useDispatch();
   const { loggedInUser } = useSelector((state) => state.session);
   const email = loggedInUser.email;
+  // const randomId = useMemo(() => nanoid(), []);
 
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState('');
 
+  let deviceId = DeviceInfo.getDeviceId();
+  console.log('uniqueId', deviceId);
+
   const handleSubmit = () => {
     setLoading(true);
-    sessionService.otpVerify({ device_id: nanoid(), otp, email }).then((data) => {
-      console.log('dataaaa', data);
+    sessionService.otpVerify({ device_id: deviceId, otp, email }).then((data) => {
+      dispatch(setAuth(data.access_token));
       if (data.error === false) {
         setLoading(false);
-        navigateTo('HomeScreen');
+        navigateTo('StackNavigator');
       }
     });
   };
 
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.pageMainContainer}>
       {loading ? (
         <Loading loading={loading} />
       ) : (
         <>
-          <Text style={styles.enterOtpText}>{strings.oneTimePassword}</Text>
+          <Text style={styles.headerText}>{strings.oneTimePassword}</Text>
           <View style={styles.otpFieldWraper}>
             <OTPInputView
               pinCount={6}
@@ -45,68 +52,27 @@ const OtpVerification = ({ navigateTo }) => {
               codeInputFieldStyle={styles.otpTextStyle}
               codeInputHighlightStyle={styles.otpTextFieldHighLighted}
             />
-            {/* {invalidCode && <Text style={styles.error}>{strings.incorrectCode}</Text>} */}
+            {/* {<Text style={styles.error}>{strings.incorrectCode}</Text>} */}
           </View>
 
           <View style={styles.btnWrapper}>
             <Button
               type="link"
               name={strings.resendOtp}
-              style={{ alignSelf: 'flex-end', marginVertical: 15 }}
+              onPress={() => handleSubmitValue(loggedInUser)}
+              style={{ alignSelf: 'flex-end' }}
             />
 
             <Button
               name={strings.next}
-              onPress={handleSubmit}
+              onPress={() => handleSubmit()}
               style={{ backgroundColor: '#0013B4' }}
             />
           </View>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default OtpVerification;
-
-const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-  },
-
-  enterOtpText: {
-    fontSize: 26,
-    color: '#1f1f1f',
-  },
-
-  otpFieldWraper: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-
-  otpTextStyle: {
-    width: 30,
-    fontSize: 20,
-    color: '#000',
-    borderWidth: 0,
-    fontWeight: '600',
-    borderBottomWidth: 1.5,
-  },
-
-  otpTextFieldHighLighted: {
-    borderColor: '#000',
-  },
-
-  error: {
-    color: 'red',
-    fontSize: 16,
-    marginBottom: 20,
-  },
-
-  btnWrapper: {
-    marginVertical: 15,
-  },
-});

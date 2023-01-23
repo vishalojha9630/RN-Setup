@@ -2,21 +2,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  // isUserLoggedIn: AsyncStorage.get('ZjsmNktQYO') ? true : false,
+  isUserLoggedIn: AsyncStorage.getItem('ZjsmNktQYO') ? true : false,
   loggedInUser: {},
 };
 
 const sessionSlice = createSlice({
-  name: 'sessionSlice',
+  name: 'session',
   initialState: initialState,
   reducers: {
     setAuth: (state, action) => {
-      // AsyncStorage.set('ZjsmNktQYO' || 'bIESIcg42Wb9', action.payload);
-      state.loggedInUser = action.payload;
+      state.loggedInUser = action?.payload;
+      AsyncStorage.setItem('ZjsmNktQYO', JSON.stringify(action?.payload));
+      state.isUserLoggedIn = true;
     },
 
-    setDestroyAuth: () => {
-      // AsyncStorage.clearAll();
+    setDestroyAuth: (state) => {
+      AsyncStorage.removeItem('ZjsmNktQYO');
+      state.isUserLoggedIn = false;
     },
   },
 });
